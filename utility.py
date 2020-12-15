@@ -19,7 +19,7 @@ class modelPara:
 class data:
     def __init__(self):
         self.y = []
-        self.A = []
+        self.X = []
     def add(self, name, parm):
         setattr(self, name, parm)
     def scaleX(self):

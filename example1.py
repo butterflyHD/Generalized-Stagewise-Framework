@@ -35,10 +35,12 @@ def example1():
     infoP.add('data', data)
     infoP.add('sizeP', [1,1,1,1,1,1,1,1])
     infoP.add('G', 8)
+    infoP.add('subsett', [1,2])
     #print(infoP.modelPara.epsilon)
-    fit = gsf.logloptimizor(infoP)
-    print(fit)
-
+    #fit = gsf.logloptimizor(infoP)
+    #print(fit)
+ 
+    fit = gsf.GSF(infoP)
 if __name__ == "__main__":
     example1()
 
