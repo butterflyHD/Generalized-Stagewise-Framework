@@ -44,6 +44,19 @@ class infoParser:
         for attribute, value in self.__dict__.items():
             print(attribute, '=', value) 
 
+class UpdateCovariateParser:
+    def __int__(self):
+        self.data   = []
+        self.tol    = []
+        self.offset = []
+        self.beta   = []
+        self.nablaf = []
+    def add(self, name, parm):
+        setattr(self, name, parm)
+    def showAll(self):
+        for attribute, value in self.__dict__.items():
+            print(attribute, "=", value)
+
 def scale(X):
     # rescale a matrix to [0, 1]
     colMeanX = X.mean(0)

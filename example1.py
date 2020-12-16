@@ -14,7 +14,7 @@ def example1():
     modelp = util.modelPara()
     modelp.add('epsilon', 0.01)
     modelp.add('x0', 0)
-    modelp.add('model', 'guassian')
+    modelp.add('model', 'gaussian')
     modelp.add('normType', "2")
     modelp.add('Q', 0)
     modelp.add('maxiter', 1000)

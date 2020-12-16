@@ -2,7 +2,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import example1 as ex1
+import utility as util
 from sklearn.linear_model import LinearRegression
+
+def nablafGaussian(y, X, beta, beta0):
+    XT = X.transpose()
+    v = np.matmul(XT.values, y - np.matmul(X.values, beta) - beta0)
+    return(v)
 
 def logloptimizor(args):
     # TweedieRegression
@@ -27,6 +33,7 @@ def GSF(args):
     epsilon  = args.modelPara.epsilon
     maxiter  = args.modelPara.maxiter
     normType = args.modelPara.normType
+    model    = args.modelPara.model
     Q        = args.modelPara.Q
     tol      = args.modelPara.tol
     A        = args.data.X
@@ -78,6 +85,24 @@ def GSF(args):
     beta      = np.zeros((sum(sizeP), 1))
     nablaFseq = np.zeros((sum(sizeP), maxiter + 1))
 
+    OptimizeParser = util.UpdateCovariateParser()
+    datap = util.data() 
+    datap.add('y', y)
+    datap.add('X', A)
+    OptimizeParser.add('epsilon', 0.01)
+    OptimizeParser.add('data', datap)
+    OptimizeParser.add('beta', beta)
+    OptimizeParser.add('offset', np.matmul(A.values, beta)) # offset will be an array
+
+    if(subsett != None):
+        if(model == 'gaussian'):
+            OptimizeParser.add('nablaf', nablafGaussian)
+        if(model == 'binomial'):
+            OptimizeParser.add('nablaf', nablafBinomial)
+        if(model == 'poisson'):
+            OptimizeParser.add('nablaf', nablafPoisson)
+    
+    temp = OptimizeParser.nablaf(y, A, beta, OptimizeParser.offset)
    # for iter in range(0,maxiter):
    #     a = 0
 
