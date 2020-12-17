@@ -3,28 +3,69 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import example1 as ex1
 import utility as util
+from numpy import linalg as LA
 from sklearn.linear_model import LinearRegression
 
 def nablafGaussian(y, X, beta, beta0):
     XT = X.transpose()
-    v = np.matmul(XT.values, y - np.matmul(X.values, beta) - beta0)
+    v  = np.matmul(XT.values, y - np.matmul(X.values, beta) - beta0)
     return(v)
+
+def nablafBinomial(y, X, beta, beta0):
+    n,_  = X.shape # total number of rows 
+    mu   = beta0 + np.matmul(X.values, beta)
+    temp = 0
+    for i in range(0, n):
+        temp += np.dot((np.exp(mu[i])/(1+ np.exp([i])) - y[i]), X.ix[i,:].values.transpose())
+    return(temp)
+
+def nablafPoisson(y, X, beta, beta0):
+    n,_  = X.shape
+    mu   = beta0 + np.matmul(X.values, beta)
+    temp = 0
+    for i in range(0, n):
+        temp += np.dot((-y[i] + np.exp((mu[i]))), X.ix[i,:].values.transpose()) 
+    return(temp)
 
 def logloptimizor(args):
     # TweedieRegression
     # min_w 1/2n \sum_i d(yi yi^hat) + \alpha/2||w||_2
     # normal distribution case
     # simple array
+    ## simple example fit linear regression ##
+    # model = args.modelPara.model
+    # X     = pd.DataFrame(args.data.X.ix[:,7].reshape(-1,1))
+    # y     = pd.DataFrame(args.data.y.reshape(-1,1))
+    # reg   = LinearRegression(fit_intercept=False) 
+    # reg.fit(X, y)
+    # return reg.coef_
+
+    nablalogl = args.nablaf
+    tol       = args.tol
+    A         = args.data.X
+    y         = args.data.y
+    beta0     = args.offset
+
+    maxiter   = 100000
+    _,p       = A.shape
+    beta      = np.zeros((p, 1))
+    gamma     = 1
+
+    # gradient descent 
+    for i in range(0, maxiter):
+        delta    = gamma * nablalogl(y, A, beta, beta0)
+        betaCand = beta - delta
+        nablaFcand = nablalogl(y, A, betaCand, beta0)
+        nablaFprev = nablalogl(y, A, beta, beta0)
+
+        # Barzilai-Borwein method
+        temp = abs(nablaFcand - nablaFprev) 
+        gamma  = abs(np.cross(delta, temp)/ LA.norm(temp))
+        if ((LA.norm(temp) <= tol) or (LA.norm(nablaFcand) <= tol) or (LA.norm(beta- betaCand) <= tol)):
+            break 
+        beta = betaCand
+    return(betaCand) 
     
-
-
-    model = args.modelPara.model
-    X     = pd.DataFrame(args.data.X.ix[:,7].reshape(-1,1))
-    y     = pd.DataFrame(args.data.y.reshape(-1,1))
-    reg   = LinearRegression(fit_intercept=False) 
-    reg.fit(X, y)
-    return reg.coef_
-
 
 def GSF(args):
     # Generalized Stagewise Framework main code
@@ -91,6 +132,7 @@ def GSF(args):
     datap.add('X', A)
     OptimizeParser.add('epsilon', 0.01)
     OptimizeParser.add('data', datap)
+    OptimizeParser.add('tol', 1e-7)
     OptimizeParser.add('beta', beta)
     OptimizeParser.add('offset', np.matmul(A.values, beta)) # offset will be an array
 
@@ -103,6 +145,7 @@ def GSF(args):
             OptimizeParser.add('nablaf', nablafPoisson)
     
     temp = OptimizeParser.nablaf(y, A, beta, OptimizeParser.offset)
+    tempIni = logloptimizor(OptimizeParser)
    # for iter in range(0,maxiter):
    #     a = 0
 
