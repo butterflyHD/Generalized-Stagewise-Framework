@@ -50,17 +50,25 @@ def logloptimizor(args):
     _,p       = A.shape
     beta      = np.zeros((p, 1))
     gamma     = 1
+    print(A)
+    print(beta0)
+    print(y)
 
     # gradient descent 
     for i in range(0, maxiter):
         delta    = gamma * nablalogl(y, A, beta, beta0)
+        print(delta)
         betaCand = beta - delta
+        print(betaCand)
         nablaFcand = nablalogl(y, A, betaCand, beta0)
+        print(nablaFcand)
         nablaFprev = nablalogl(y, A, beta, beta0)
+        print(nablaFprev)
 
         # Barzilai-Borwein method
         temp = abs(nablaFcand - nablaFprev) 
         gamma  = abs(np.cross(delta, temp)/ LA.norm(temp))
+        print(gamma)
         if ((LA.norm(temp) <= tol) or (LA.norm(nablaFcand) <= tol) or (LA.norm(beta- betaCand) <= tol)):
             break 
         beta = betaCand
@@ -86,9 +94,10 @@ def GSF(args):
     M        = args.M
     sizeP    = args.sizeP
     nOri     = sum(sizeP)
+    n,p      = A.shape
 
     #print(sizeP)
-
+    print(A)
     if(subsett is None):
         M     = None
         betaM = None
@@ -110,8 +119,14 @@ def GSF(args):
             indexpointer = indexpointer + findex.size
         
         M = A.ix[:,subsett]
+        print(M)
+        print(nOri)
         csubsett = set(range(nOri)) - set(subsett)
-        A = A.ix[:, csubsett] # A = A[, -subsett]
+        print(csubsett)
+        print(A)
+        print(A.ix)
+        A = A.ix[:, 7] # A = A[, -subsett]
+        print(A)
         betaM = np.zeros((len(sizeP), 1))
         sizeP = [x for x in sizeP if x != 0]
         G = len(sizeP)
@@ -129,7 +144,10 @@ def GSF(args):
     OptimizeParser = util.UpdateCovariateParser()
     datap = util.data() 
     datap.add('y', y)
-    datap.add('X', A)
+    # add intercept
+    intercept = 1 
+    M.insert(0, "intercept", intercept)
+    datap.add('X', M)
     OptimizeParser.add('epsilon', 0.01)
     OptimizeParser.add('data', datap)
     OptimizeParser.add('tol', 1e-7)

@@ -60,11 +60,13 @@ class UpdateCovariateParser:
 def scale(X):
     # rescale a matrix to [0, 1]
     colMeanX = X.mean(0)
-    colVarX = X.ix[:,0].var(0, ddof = 1) # same resuls from R but it is based on 6 digit precision when reading data.
+    colVarX = X.var(0, ddof = 1) # same resuls from R but it is based on 6 digit precision when reading data.
     #d = X - colMeanX
     #d = d**2
     #print(d.lcavol.sum()/96)
     #print(colVarX)
+    print(colMeanX)
+    print(np.sqrt(colVarX))
     scaledX = (X- colMeanX)/np.sqrt(colVarX)
     return scaledX
 

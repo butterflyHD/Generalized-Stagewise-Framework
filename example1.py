@@ -8,7 +8,8 @@ def example1():
     path = "/Users/mengyang/Documents/python/Generalized-Stagewise-Framework/data/prostate.txt"
     data = pd.read_csv(path, sep = "\t", header = 0)    
     y = data.lpsa
-    X = data.ix[:, 1:8]
+    X = data.ix[:, 1:9]
+    print(X)
     ind = data.train
     # parameter set up 
     modelp = util.modelPara()
@@ -22,12 +23,13 @@ def example1():
 
     data = util.data()
     X    = util.scale(X)
+    print(X)
     index = X[ind == "F"].index
     X = X.drop(index)
-    X['intercept'] = 1
     y = y.drop(index)
     data.add('y', y)
     data.add('X', X)
+    print(X)
     #print(X)
 
     infoP = util.infoParser()
@@ -35,7 +37,7 @@ def example1():
     infoP.add('data', data)
     infoP.add('sizeP', [1,1,1,1,1,1,1,1])
     infoP.add('G', 8)
-    infoP.add('subsett', [1,2])
+    infoP.add('subsett', [0,1])
     #print(infoP.modelPara.epsilon)
     #fit = gsf.logloptimizor(infoP)
     #print(fit)
