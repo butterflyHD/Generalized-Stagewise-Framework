@@ -119,14 +119,8 @@ def GSF(args):
             indexpointer = indexpointer + findex.size
         
         M = A.ix[:,subsett]
-        print(M)
-        print(nOri)
         csubsett = set(range(nOri)) - set(subsett)
-        print(csubsett)
-        print(A)
-        print(A.ix)
-        A = A.ix[:, 7] # A = A[, -subsett]
-        print(A)
+        A = A.ix[:, csubsett] # A = A[, -subsett]
         betaM = np.zeros((len(sizeP), 1))
         sizeP = [x for x in sizeP if x != 0]
         G = len(sizeP)
@@ -147,6 +141,7 @@ def GSF(args):
     # add intercept
     intercept = 1 
     M.insert(0, "intercept", intercept)
+    print(M)
     datap.add('X', M)
     OptimizeParser.add('epsilon', 0.01)
     OptimizeParser.add('data', datap)

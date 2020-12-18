@@ -9,7 +9,6 @@ def example1():
     data = pd.read_csv(path, sep = "\t", header = 0)    
     y = data.lpsa
     X = data.ix[:, 1:9]
-    print(X)
     ind = data.train
     # parameter set up 
     modelp = util.modelPara()
@@ -23,13 +22,11 @@ def example1():
 
     data = util.data()
     X    = util.scale(X)
-    print(X)
     index = X[ind == "F"].index
     X = X.drop(index)
     y = y.drop(index)
     data.add('y', y)
     data.add('X', X)
-    print(X)
     #print(X)
 
     infoP = util.infoParser()
