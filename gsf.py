@@ -8,7 +8,7 @@ from sklearn.linear_model import LinearRegression
 
 def nablafGaussian(y, X, beta, beta0):
     XT = X.transpose()
-    v  = np.matmul(XT.values, y - np.matmul(X.values, beta) - beta0)
+    v  = - np.matmul(XT.values,y.values.reshape(-1,1) - np.matmul(X.values, beta) - beta0)
     return(v)
 
 def nablafBinomial(y, X, beta, beta0):
@@ -57,18 +57,13 @@ def logloptimizor(args):
     # gradient descent 
     for i in range(0, maxiter):
         delta    = gamma * nablalogl(y, A, beta, beta0)
-        print(delta)
         betaCand = beta - delta
-        print(betaCand)
         nablaFcand = nablalogl(y, A, betaCand, beta0)
-        print(nablaFcand)
         nablaFprev = nablalogl(y, A, beta, beta0)
-        print(nablaFprev)
 
         # Barzilai-Borwein method
         temp = abs(nablaFcand - nablaFprev) 
-        gamma  = abs(np.cross(delta, temp)/ LA.norm(temp))
-        print(gamma)
+        gamma  = abs(np.matmul(delta.transpose(), temp)/ LA.norm(temp)**2)
         if ((LA.norm(temp) <= tol) or (LA.norm(nablaFcand) <= tol) or (LA.norm(beta- betaCand) <= tol)):
             break 
         beta = betaCand
@@ -112,9 +107,10 @@ def GSF(args):
             groupsize += sizeP[i]
             tempsubsize = [x % groupsize for x in tempsubsett]
             #print(type(tempsubsize))
-            findex = np.array([x == y for x in tempsubsize for y in tempsubsett].index(True)) + 1
+            findex = np.array([xx == yy for xx in tempsubsize for yy in tempsubsett].index(True)) + 1
             #print(type(findex))
             #print(sizeP[i]-findex.size)
+            print(y)
             sizeP[i] = sizeP[i] - findex.size
             indexpointer = indexpointer + findex.size
         
@@ -134,10 +130,11 @@ def GSF(args):
     nablaF    = np.zeros((sum(sizeP), 1))
     beta      = np.zeros((sum(sizeP), 1))
     nablaFseq = np.zeros((sum(sizeP), maxiter + 1))
-
     OptimizeParser = util.UpdateCovariateParser()
     datap = util.data() 
+    print(y)
     datap.add('y', y)
+    print(datap.y)
     # add intercept
     intercept = 1 
     M.insert(0, "intercept", intercept)
