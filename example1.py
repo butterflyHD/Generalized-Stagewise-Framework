@@ -18,7 +18,7 @@ def example1():
     modelp.add('normType', "2")
     modelp.add('Q', 0)
     modelp.add('maxiter', 1000)
-    modelp.add('tol', 1e-7)
+    modelp.add('tol', 1e-14)
 
     data = util.data()
     X    = util.scale(X)

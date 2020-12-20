@@ -42,6 +42,7 @@ def logloptimizor(args):
 
     nablalogl = args.nablaf
     tol       = args.tol
+    print(tol)
     A         = args.data.X
     y         = args.data.y
     beta0     = args.offset
@@ -60,9 +61,11 @@ def logloptimizor(args):
         betaCand = beta - delta
         nablaFcand = nablalogl(y, A, betaCand, beta0)
         nablaFprev = nablalogl(y, A, beta, beta0)
-
+        
         # Barzilai-Borwein method
         temp = abs(nablaFcand - nablaFprev) 
+        print(i)
+        print(gamma)
         gamma  = abs(np.matmul(delta.transpose(), temp)/ LA.norm(temp)**2)
         if ((LA.norm(temp) <= tol) or (LA.norm(nablaFcand) <= tol) or (LA.norm(beta- betaCand) <= tol)):
             break 
@@ -142,7 +145,7 @@ def GSF(args):
     datap.add('X', M)
     OptimizeParser.add('epsilon', 0.01)
     OptimizeParser.add('data', datap)
-    OptimizeParser.add('tol', 1e-7)
+    OptimizeParser.add('tol', 1e-14)
     OptimizeParser.add('beta', beta)
     OptimizeParser.add('offset', np.matmul(A.values, beta)) # offset will be an array
 
@@ -156,6 +159,7 @@ def GSF(args):
     
     temp = OptimizeParser.nablaf(y, A, beta, OptimizeParser.offset)
     tempIni = logloptimizor(OptimizeParser)
+    print(tempIni)
    # for iter in range(0,maxiter):
    #     a = 0
 
