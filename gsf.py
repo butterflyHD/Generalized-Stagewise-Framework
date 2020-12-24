@@ -6,6 +6,87 @@ import utility as util
 from numpy import linalg as LA
 from sklearn.linear_model import LinearRegression
 
+def gradient(model, beta0, beta, betaM, jstart, pj, y, A, M):
+    n,_ = A.shape
+    jend = jstart + pj - 1 # watch out index starts from zero
+    # .values convert dataframe to array
+    if (M is None):
+        MbetaM = 0
+    else:
+        MnoIntercept = M.drop('intercept', axis = 1)
+        MbetaM = np.matmul(MnoIntercept.values, betaM)
+    
+    #print(MbetaM)
+
+    mu = beta0 + np.matmul(A.values, beta) + MbetaM
+    #print(mu)
+
+    if (model == "gaussian"):
+        if(jstart == jend):
+            Xj  = A.values[:,jstart].reshape(-1, 1)
+        else:
+            Xj  = A.values[:,jstart:jend]
+        #print(Xj)
+        r   = y.values.reshape(-1, 1) - mu
+        XTj = Xj.transpose()
+        
+        #print(mu)
+        #print(r)
+        #print(mu.shape)
+        #print(XTj)
+        #print(mu)
+        v   = - np.matmul(XTj, r)
+        #print(v)
+
+    if (model == "binomial"):
+        temp = 0
+        v = 0
+        #binomial not supported for now
+        
+
+    if (model == "poisson"):
+        v = 0
+        #poisson not supported for now
+
+    return(v)
+
+def ChooseI(beta0, beta, betaM, model, normType, nablaF, iCand, omega, sizeP, G, y, A, M):
+    # normType not supported for now
+    print(beta0)
+    print(beta)
+    print(betaM)
+    pj = sizeP[0]
+    jstart = 0
+    jend = sizeP[0] - 1
+    if(jstart == jend):
+        nablaF[jstart] = gradient(model, beta0, beta, betaM, jstart, pj, y, A, M)
+    else:
+        nablaF[jstart:jend] = gradient(model, beta0, beta, betaM, jstart, pj, y, A, M)
+    
+    print(nablaF)
+    if(jstart == jend):
+        iCand[0] = LA.norm(nablaF[jstart]) # for now 2 norm only
+    else:
+        iCand[0] = LA.norm(nablaF[jstart:jend])
+    print(iCand)
+
+    if(G>1):
+        for i in range(1, G): # 2:G in R
+            jstart = int(np.sum(sizeP[0:(i-1)]) + 1)
+            jend   = int(jstart + sizeP[i] - 1)
+            if(jstart == jend):
+                nablaF[jstart] = gradient(model, beta0, beta, betaM, jstart, pj, y, A, M)
+                iCand[i] = LA.norm(nablaF[jstart])
+            else:
+                nablaF[jstart:jend] = gradient(model, beta0, beta, betaM, jstart, pj, y, A, M)
+                iCand[i] = LA.norm(nablaF[jstart:jend])
+            
+            print(iCand)
+
+    ii = np.argmax(iCand, axis = 0)
+    print(ii)
+    return(ii)
+
 def nablafGaussian(y, X, beta, beta0):
     XT = X.transpose()
     v  = - np.matmul(XT.values,y.values.reshape(-1,1) - np.matmul(X.values, beta) - beta0)
@@ -160,6 +241,17 @@ def GSF(args):
     temp = OptimizeParser.nablaf(y, A, beta, OptimizeParser.offset)
     tempIni = logloptimizor(OptimizeParser)
     print(tempIni)
+    beta0 = tempIni[0]
+    print(beta0)
+    betaM = tempIni[1:]  ## get all except first element
+    print(betaM)
+    pj = sizeP[0]
+    jstart = 0
+    jend = sizeP[0]
+
+
+    ii  = ChooseI(beta0, beta, betaM, model, normType, nablaF, iCand, omega, sizeP, G, y, A, M)
+    ##vv = gradient(model, beta0, beta, betaM, jstart, pj, y, A, M)
    # for iter in range(0,maxiter):
    #     a = 0
 

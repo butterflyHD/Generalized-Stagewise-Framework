@@ -75,8 +75,3 @@ if __name__ == '__main__':
         [1.,2.,3.],   # 1st point
         [4.,5.,6.]]   # 2nd point
     )
-    X = scale(points)
-    print X
-    d = modelPara()
-    d.add("x0", 0.1)
-    d.add("x0", 1)
